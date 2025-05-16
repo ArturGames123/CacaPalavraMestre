@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CruzadinhaMestre</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      color: #333;
+    }
+    .palavras, .editor {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(10, 40px);
+      gap: 2px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .cell {
+      width: 40px;
+      height: 40px;
+      border: 1px solid #ccc;
+      font-size: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 40px;
+      background-color: white;
+      cursor: pointer;
+      user-select: none;
+    }
+    .editor {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+    input, button {
+      margin: 5px;
+      padding: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>CruzadinhaMestre</h1>
+  <div class="palavras" id="palavrasInfo">
+    Palavras: CASA, GATO, CACHORRO, BOLA e BALA
+  </div>
+  <div id="grid" class="grid"></div>
+
+  <div class="editor" id="modoEditor">
+    <h2>Modo Editor Ativado</h2>
+    <input type="text" id="novaPalavra" placeholder="Digite a palavra (máx 10 letras)" maxlength="10">
+    <input type="color" id="corPalavra" value="#ff0000">
+    <button onclick="adicionarPalavra()">Adicionar Palavra</button>
+    <button onclick="salvarCruzadinha()">Salvar e Testar</button>
+    <button onclick="limparCruzadinha()">Limpar Cruzadinha</button> <!-- Botão novo -->
+  </div>
+
+  <script>
+    let palavras = [
+      { texto: "GATO", cor: "#0000ff" },
+      { texto: "CACHORRO", cor: "#00ff00" },
+      { texto: "CASA", cor: "#ffff00" },
+      { texto: "BOLA", cor: "#ff0000" },
+      { texto: "BALA", cor: "#ffa500" }
+    ];
+
+    const tamanho = 10;
+    const totalCelas = tamanho * tamanho;
+    const letrasAleatorias = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const grid = document.getElementById("grid");
+    const palavrasInfo = document.getElementById("palavrasInfo");
+    let respostas = Array(totalCelas).fill("");
+    let cores = Array(totalCelas).fill(null);
+    let selecionadas = Array(totalCelas).fill(false);
+
+    function montarCruzadinha() {
+      grid.innerHTML = "";
+      respostas = Array(totalCelas).fill("");
+      cores = Array(totalCelas).fill(null);
+      selecionadas = Array(totalCelas).fill(false);
+
+      palavras.forEach((palavraObj, index) => {
+        const { texto, cor } = palavraObj;
+        if (texto.length > tamanho) return;
+        const linha = index;
+        const inicio = linha * tamanho;
+        if (inicio + texto.length <= (linha + 1) * tamanho) {
+          for (let i = 0; i < texto.length; i++) {
+            respostas[inicio + i] = texto[i];
+            cores[inicio + i] = cor;
+          }
+        }
+      });
+
+      for (let i = 0; i < totalCelas; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        const letra = respostas[i] || letrasAleatorias[Math.floor(Math.random() * letrasAleatorias.length)];
+        cell.textContent = letra;
+
+        cell.addEventListener("click", () => {
+          if (respostas[i] !== "") {
+            cell.style.backgroundColor = cores[i];
+            selecionadas[i] = true;
+            if (verificarVitoria()) {
+              alert("Parabéns você zerou, você desbloqueou o modo editor");
+              document.getElementById("modoEditor").style.display = "flex";
+            }
+          } else {
+            alert("Letra Inválida, tu escreveu em árabe (it7dicodoquidododi7dueducagjososo), tente outro.");
+          }
+        });
+
+        grid.appendChild(cell);
+      }
+
+      palavrasInfo.textContent = palavras.length > 0
+        ? "Palavras: " + palavras.map(p => p.texto).join(", ")
+        : "Palavras: Nenhuma palavra adicionada";
+    }
+
+    function verificarVitoria() {
+      for (let i = 0; i < totalCelas; i++) {
+        if (respostas[i] !== "" && !selecionadas[i]) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function adicionarPalavra() {
+      const texto = document.getElementById("novaPalavra").value.toUpperCase().trim();
+      const cor = document.getElementById("corPalavra").value;
+      if (!texto || texto.length > tamanho) {
+        alert("Palavra inválida ou muito longa.");
+        return;
+      }
+      palavras.push({ texto, cor });
+      alert(`Palavra "${texto}" adicionada!`);
+      document.getElementById("novaPalavra").value = "";
+    }
+
+    function salvarCruzadinha() {
+      montarCruzadinha();
+      alert("Parabéns, você zerou o modo editor!");
+    }
+
+    // Função para limpar as palavras e exibir só letras aleatórias
+    function limparCruzadinha() {
+      palavras = []; // Remove todas as palavras
+      montarCruzadinha();
+      alert("Cruzadinha limpa! Agora só letras aleatórias aparecem.");
+    }
+
+    montarCruzadinha();
+  </script>
+</body>
+  </html>
