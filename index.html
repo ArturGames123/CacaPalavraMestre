@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>CruzadinhaMestre</title>
+  <title>CaçaPalavraMestre</title>
   <style>
     body {
       font-family: sans-serif;
@@ -46,10 +46,33 @@
       margin: 5px;
       padding: 6px;
     }
+
+    #videoContainer {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 10%;
+      width: 80%;
+      height: 60%;
+      background: black;
+      z-index: 9999;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    #videoContainer button {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      z-index: 10000;
+      background: red;
+      color: white;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <h1>CruzadinhaMestre</h1>
+  <h1>CaçaPalavraMestre</h1>
   <div class="palavras" id="palavrasInfo">
     Palavras: CASA, GATO, CACHORRO, BOLA e BALA
   </div>
@@ -60,8 +83,14 @@
     <input type="text" id="novaPalavra" placeholder="Digite a palavra (máx 10 letras)" maxlength="10">
     <input type="color" id="corPalavra" value="#ff0000">
     <button onclick="adicionarPalavra()">Adicionar Palavra</button>
-    <button onclick="salvarCruzadinha()">Salvar e Testar</button>
-    <button onclick="limparCruzadinha()">Limpar Cruzadinha</button> <!-- Botão novo -->
+    <button onclick="salvarCacaPalavra()">Salvar e Testar</button>
+    <button onclick="limparCacaPalavra()">Limpar Caça Palavra</button>
+  </div>
+
+  <!-- Vídeo em modal -->
+  <div id="videoContainer">
+    <button onclick="fecharVideo()">X</button>
+    <iframe id="videoIframe" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
   </div>
 
   <script>
@@ -81,12 +110,14 @@
     let respostas = Array(totalCelas).fill("");
     let cores = Array(totalCelas).fill(null);
     let selecionadas = Array(totalCelas).fill(false);
+    let erros = 0;
 
-    function montarCruzadinha() {
+    function montarCacaPalavra() {
       grid.innerHTML = "";
       respostas = Array(totalCelas).fill("");
       cores = Array(totalCelas).fill(null);
       selecionadas = Array(totalCelas).fill(false);
+      erros = 0;
 
       palavras.forEach((palavraObj, index) => {
         const { texto, cor } = palavraObj;
@@ -112,11 +143,16 @@
             cell.style.backgroundColor = cores[i];
             selecionadas[i] = true;
             if (verificarVitoria()) {
-              alert("Parabéns você zerou, você desbloqueou o modo editor");
+              alert("Parabéns você zerou, você desbloqueou o modo editor!");
               document.getElementById("modoEditor").style.display = "flex";
             }
           } else {
-            alert("Letra Inválida, tu escreveu em árabe (it7dicodoquidododi7dueducagjososo), tente outro.");
+            erros++;
+            alert("Letra Inválida! Tente outro lugar.");
+            if (erros >= 3) {
+              mostrarVideo("https://www.youtube.com/embed/2cr1YRwnIzs?si=hIOl9vtSxOs5qK2B");
+              erros = 0;
+            }
           }
         });
 
@@ -149,19 +185,32 @@
       document.getElementById("novaPalavra").value = "";
     }
 
-    function salvarCruzadinha() {
-      montarCruzadinha();
+    function salvarCacaPalavra() {
+      montarCacaPalavra();
       alert("Parabéns, você zerou o modo editor!");
     }
 
-    // Função para limpar as palavras e exibir só letras aleatórias
-    function limparCruzadinha() {
-      palavras = []; // Remove todas as palavras
-      montarCruzadinha();
-      alert("Cruzadinha limpa! Agora só letras aleatórias aparecem.");
+    function limparCacaPalavra() {
+      palavras = [];
+      montarCacaPalavra();
+      alert("Caça Palavra limpa! Agora só letras aleatórias aparecem.");
     }
 
-    montarCruzadinha();
+    function mostrarVideo(url) {
+      const iframe = document.getElementById("videoIframe");
+      const container = document.getElementById("videoContainer");
+      iframe.src = url;
+      container.style.display = "block";
+    }
+
+    function fecharVideo() {
+      const iframe = document.getElementById("videoIframe");
+      const container = document.getElementById("videoContainer");
+      iframe.src = "";
+      container.style.display = "none";
+    }
+
+    montarCacaPalavra();
   </script>
 </body>
-  </html>
+</html>
